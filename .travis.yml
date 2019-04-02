@@ -1,7 +1,29 @@
+sudo: required
+
+language: generic
+
+services:
+  - docker
+
+script:
+- |
+  baseDir="$(pwd)" &&\
+  inputDir="${baseDir}/book" &&\
+  outputDir="${baseDir}/output" &&\
+  mkdir -p "${outputDir}" &&\
+  docker run -v "${inputDir}/":/input/ \
+             -v "${outputDir}/":/output/ \
+             -e TRAVIS_COMMIT=$TRAVIS_COMMIT \
+             -e TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG \
+             -t -i thomasweise/docker-bookbuilder book.md myBook &&\
+  cd "${outputDir}"
+
 deploy:
   provider: pages
-  skip_cleanup: true
-  github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
-  keep_history: true
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: false
   on:
     branch: master
+  target-branch: gh-pages
+  local-dir: output
